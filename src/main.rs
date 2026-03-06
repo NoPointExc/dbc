@@ -14,9 +14,10 @@ fn main() {
     println!("Enter expressions with dollar amounts (e.g., $1,420,368.94 + $1)");
     println!("Type 'quit' or 'exit' to exit.\n");
     println!("Interactive commands:");
-    println!("  /help    - Show this help message");
-    println!("  /clear   - Clear all records from interactive mode interface");
-    println!("  #        - Start a comment (everything after # is ignored)");
+    println!("  /help      - Show this help message");
+    println!("  /clear     - Clear all records from interactive mode interface");
+    println!("  /exit|quit - exit");
+    println!("  #          - Start a comment (everything after # is ignored)");
     println!();
 
     loop {
@@ -46,7 +47,7 @@ fn main() {
                     // Clear screen by printing newlines
                     println!("\x1B[2J\x1B[1J");
                 }
-                "/exit" => {
+                "/exit" | "/quit" => {
                     break;
                 }
                 _ => {
