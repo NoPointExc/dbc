@@ -57,15 +57,17 @@ fn format_number(value: f64, format: &NumberFormat) -> String {
 
     // Format decimal part
     let decimals = if format.decimal_places > 0 {
-        // Format with exactly the original decimal places, then remove trailing zeros
+        // Format with exactly the original decimal places
         let decimal_str = format!("{:.width$}", decimal_part, width = d);
-        // Remove leading "0." and trailing zeros
-        let decimal_str = decimal_str.trim_start_matches("0.").trim_end_matches('0');
-        if decimal_str.is_empty() {
-            String::new()
+        // Remove leading "0."
+        let decimal_str = if decimal_str.starts_with("0.") {
+            &decimal_str[2..]
+        } else if decimal_str.starts_with('.') {
+            &decimal_str[1..]
         } else {
-            format!(".{}", decimal_str)
-        }
+            &decimal_str
+        };
+        format!(".{}", decimal_str)
     } else {
         String::new()
     };
@@ -288,26 +290,6 @@ fn evaluate_rpn(tokens: Vec<Token>) -> Result<f64, String> {
     Ok(stack[0])
 }
 
-// Check if expression ends with % (percentage of something)
-fn has_percentage_suffix(input: &str) -> bool {
-    let trimmed = input.trim();
-    // Find last number-like token and check if it ends with %
-    let chars: Vec<char> = trimmed.chars().collect();
-    let mut i = chars.len();
-    
-    // Skip whitespace
-    while i > 0 && chars[i-1].is_whitespace() {
-        i -= 1;
-    }
-    
-    // Check if ends with %
-    if i > 0 && chars[i-1] == '%' {
-        return true;
-    }
-    
-    false
-}
-
 /// Evaluate a mathematical expression string and return the formatted result.
 ///
 /// Supports dollar amounts (e.g., `$1,420,368.94`), basic arithmetic operators
@@ -318,54 +300,8 @@ fn has_percentage_suffix(input: &str) -> bool {
 pub fn evaluate(input: &str) -> Result<String, String> {
     let input = input.trim();
 
-    // Handle percentage suffix (e.g., "400 * 4%")
-    // In this case, 4% means 4/100 = 0.04
-    let expr: String = if has_percentage_suffix(input) {
-        // Replace % with /100 for the last number
-        let chars: Vec<char> = input.chars().collect();
-        let mut result = String::new();
-        let mut in_number = false;
-        let mut last_num_start = 0;
-        
-        for (i, &c) in chars.iter().enumerate() {
-            if c.is_ascii_digit() || c == '.' {
-                if !in_number {
-                    last_num_start = i;  // Track start of number
-                }
-                in_number = true;
-            } else if in_number && c == '%' {
-                // Found percentage - replace with /100
-                result.push_str(&input[last_num_start..i]);
-                result.push_str("/100");
-                in_number = false;
-            } else if c == '$' || c == ',' {
-                // Just continue, don't change in_number state
-            } else {
-                if in_number {
-                    // End of a number, copy it
-                    result.push_str(&input[last_num_start..i]);
-                }
-                // Copy the current character (operator, space, etc)
-                result.push(c);
-                in_number = false;
-            }
-        }
-        
-        // Handle case where expression ends with a number (no % to replace)
-        if !result.is_empty() && result.len() < input.len() {
-            // We already handled the percentage replacement
-            result
-        } else if result.is_empty() {
-            input.to_string()
-        } else {
-            result
-        }
-    } else {
-        input.to_string()
-    };
-
     // Tokenize the expression
-    let tokens = tokenize(&expr)?;
+    let tokens = tokenize(input)?;
     
     if tokens.is_empty() {
         return Err("Empty expression".to_string());

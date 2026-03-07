@@ -9,8 +9,9 @@ A command-line calculator for dollar number calculations with flexible number fo
   - `$1,420,368.94`
   - `1,420,368.94`
   - `1420368.94`
-- **Format Preservation**: Output maintains the same format as the first operand
-- **Interactive REPL Mode**: Enter expressions interactively
+- **Format Preservation**: Output matches the format (dollar sign, commas, decimal precision) of the first number in the expression.
+- **Interactive REPL Mode**: Enter expressions interactively.
+- **One-Shot Mode**: Evaluate expressions directly from command-line arguments.
 
 ## Installation
 
@@ -21,18 +22,26 @@ cargo build --release
 
 ## Usage
 
+### One-Shot Mode (Command-Line Arguments)
+
+Pass an expression as arguments to evaluate it and exit:
+
+```bash
+dbc "$1,420,368.94 + $1"
+# Output: $1,420,369.94
+
+dbc "400 * 5%"
+# Output: 20
+```
+
+*Tip: Always use single quotes ('...') or double quotes ("...") around expressions in your shell to avoid interpretation of characters like `$` or `*`.*
+
 ### Interactive Mode
 
-Run the calculator without arguments to enter interactive mode:
+Run `dbc` without arguments to enter the interactive REPL:
 
 ```bash
 dbc
-```
-
-### Command-Line Arguments
-
-```
-dbc [--help] [expression]
 ```
 
 ### Interactive Commands
@@ -53,8 +62,8 @@ $1,420,369.94
 > 400 * 4%
 16
 
-> $100 - $50
-$50
+> $100.00 - $50
+$50.00 (Note: Format matches the first operand)
 
 > 420368.94 + $2
 420370.94
