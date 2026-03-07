@@ -15,9 +15,19 @@ A command-line calculator for dollar number calculations with flexible number fo
 
 ## Installation
 
+### Via Homebrew (macOS/Linux)
+
 ```bash
+brew tap NoPointExc/tap
+brew install dbc
+```
+
+### From Source (Requires Rust)
+
+```bash
+git clone https://github.com/NoPointExc/dbc.git
 cd dbc
-cargo build --release
+cargo install --path .
 ```
 
 ## Usage
