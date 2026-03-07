@@ -1,4 +1,4 @@
-# DBC - Dollar Calculator CLI Tool
+# $dbc - $Dollar Calculator CLI
 
 A command-line calculator for dollar number calculations with flexible number format support.
 
