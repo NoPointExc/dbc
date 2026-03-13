@@ -128,8 +128,8 @@ fn tokenize(input: &str) -> Result<Vec<Token>, String> {
                 if ch.is_ascii_digit() || ch == '.' {
                     num_str.push(ch);
                     has_digit = true;
-                } else if ch == '$' || ch == ',' {
-                    // Include but don't mark as having digit yet
+                } else if ch == '$' || (ch == ',' && i + 1 < chars.len() && chars[i+1].is_ascii_digit()) {
+                    // Include comma ONLY if followed by digit (thousands separator)
                     num_str.push(ch);
                 } else if ch == '%' {
                     // Percentage - append and continue
@@ -196,7 +196,7 @@ fn tokenize(input: &str) -> Result<Vec<Token>, String> {
             continue;
         }
 
-        // Handle comma
+        // Handle comma (as argument separator)
         if c == ',' {
             tokens.push(Token::Comma);
             i += 1;
@@ -232,11 +232,16 @@ fn to_rpn(tokens: Vec<Token>) -> Result<Vec<Token>, String> {
                 operators.push(token);
             }
             Token::Comma => {
+                let mut found_left_paren = false;
                 while let Some(top) = operators.last() {
                     if matches!(top, Token::LeftParen) {
+                        found_left_paren = true;
                         break;
                     }
                     output.push(operators.pop().unwrap());
+                }
+                if !found_left_paren {
+                    return Err("Comma misplaced or mismatched parentheses".to_string());
                 }
             }
             Token::Operator(op) => {
@@ -338,12 +343,6 @@ fn evaluate_rpn(tokens: Vec<Token>) -> Result<f64, String> {
                         stack.push(base.powf(exponent));
                     }
                     "max" => {
-                        if stack.is_empty() { return Err("max requires at least 1 argument".to_string()); }
-                        // Note: Simple Shunting-yard doesn't track argument count easily.
-                        // For max/min we'll assume it consumes all available on stack if called at top-level,
-                        // but actually we should just consume 2 for simplicity or support multi-args.
-                        // Let's support 2 for now as is standard in many RPN evaluators, 
-                        // or we can consume all remaining.
                         if stack.len() < 2 { return Err("max requires at least 2 arguments".to_string()); }
                         let b = stack.pop().unwrap();
                         let a = stack.pop().unwrap();
@@ -423,6 +422,7 @@ mod tests {
     fn test_max_min() {
         assert_eq!(evaluate("max(10, 20)").unwrap(), "20");
         assert_eq!(evaluate("min($10, $20)").unwrap(), "$10");
+        assert_eq!(evaluate("max(1, 2)").unwrap(), "2");
     }
 
     #[test]
