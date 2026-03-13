@@ -128,9 +128,27 @@ fn tokenize(input: &str) -> Result<Vec<Token>, String> {
                 if ch.is_ascii_digit() || ch == '.' {
                     num_str.push(ch);
                     has_digit = true;
-                } else if ch == '$' || (ch == ',' && i + 1 < chars.len() && chars[i+1].is_ascii_digit()) {
-                    // Include comma ONLY if followed by digit (thousands separator)
+                } else if ch == '$' {
                     num_str.push(ch);
+                } else if ch == ',' {
+                    // Lookahead: is this a thousands separator?
+                    // Must be followed by exactly 3 digits then a non-digit or end
+                    let mut is_thousands = false;
+                    if i + 3 < chars.len() && 
+                       chars[i+1].is_ascii_digit() && 
+                       chars[i+2].is_ascii_digit() && 
+                       chars[i+3].is_ascii_digit() {
+                        if i + 4 == chars.len() || !chars[i+4].is_ascii_digit() {
+                            is_thousands = true;
+                        }
+                    }
+                    
+                    if is_thousands {
+                        num_str.push(ch);
+                    } else {
+                        // Not a thousands separator, stop number parsing here
+                        break;
+                    }
                 } else if ch == '%' {
                     // Percentage - append and continue
                     num_str.push(ch);
@@ -423,6 +441,7 @@ mod tests {
         assert_eq!(evaluate("max(10, 20)").unwrap(), "20");
         assert_eq!(evaluate("min($10, $20)").unwrap(), "$10");
         assert_eq!(evaluate("max(1, 2)").unwrap(), "2");
+        assert_eq!(evaluate("max(1,2)").unwrap(), "2");
     }
 
     #[test]
