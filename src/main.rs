@@ -13,6 +13,28 @@ use dbc::evaluate;
 fn main() -> io::Result<()> {
     let args: Vec<String> = env::args().collect();
     
+    // Handle version flag
+    if args.len() > 1 && (args[1] == "--version" || args[1] == "-v") {
+        println!("dbc v0.1.2");
+        return Ok(());
+    }
+
+    // Handle update flag
+    if args.len() > 1 && args[1] == "--update" {
+        println!("Updating dbc via homebrew...");
+        let status = std::process::Command::new("sh")
+            .arg("-c")
+            .arg("brew update && brew upgrade dbc")
+            .status()?;
+        
+        if status.success() {
+            println!("Update successful!");
+        } else {
+            eprintln!("Update failed. Please ensure homebrew is installed and dbc is tapped.");
+        }
+        return Ok(());
+    }
+
     // Handle help flags
     if args.len() > 1 && (args[1] == "--help" || args[1] == "-h") {
         print_help();
@@ -45,6 +67,8 @@ fn print_help() {
     println!("  dbc [expression]    Evaluate the expression and exit");
     println!("  dbc                 Enter interactive mode");
     println!("  dbc --help, -h      Show this help message");
+    println!("  dbc --version, -v   Show version information");
+    println!("  dbc --update        Update dbc via homebrew");
     println!();
     println!("Interactive Mode Shortcuts:");
     println!("  Arrows Left/Right   - Move cursor by character");
