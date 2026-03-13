@@ -5,6 +5,7 @@ A command-line calculator for dollar number calculations with flexible number fo
 ## Features
 
 - **Basic Math Operations**: +, -, *, /, %
+- **Mathematical Functions**: `sqrt(x)`, `pow(base, exp)`, `abs(x)`, `max(a, b)`, `min(a, b)`
 - **Flexible Number Formats**: Supports $ prefix and comma separators
   - `$1,420,368.94`
   - `1,420,368.94`
@@ -18,7 +19,7 @@ A command-line calculator for dollar number calculations with flexible number fo
 ### Via Homebrew (macOS/Linux)
 
 ```bash
-brew tap NoPointExc/tap
+brew tap NoPointExc/homebrew-tap
 brew install dbc
 ```
 
@@ -42,6 +43,9 @@ dbc "$1,420,368.94 + $1"
 
 dbc "400 * 5%"
 # Output: 20
+
+dbc "sqrt(9)"
+# Output: 3
 ```
 
 *Tip: Always use single quotes ('...') or double quotes ("...") around expressions in your shell to avoid interpretation of characters like `$` or `*`.*
@@ -72,11 +76,11 @@ $1,420,369.94
 > 400 * 4%
 16
 
-> $100.00 - $50
-$50.00 (Note: Format matches the first operand)
+> max($100, $50)
+$100
 
-> 420368.94 + $2
-420370.94
+> sqrt(pow(3, 2) + pow(4, 2))
+5
 ```
 
 ## Number Format Handling
