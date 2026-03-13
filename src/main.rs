@@ -12,7 +12,7 @@ use dbc::evaluate;
 
 #[derive(Parser)]
 #[command(name = "dbc")]
-#[command(version = "0.1.3")]
+#[command(version)]
 #[command(about = "Dollar Calculator CLI Tool", long_about = None)]
 struct Cli {
     /// The expression to evaluate (e.g., "$100 + $50")
@@ -61,17 +61,20 @@ fn main() -> io::Result<()> {
     run_repl()
 }
 
-fn print_repl_help() {
-    println!("Interactive Mode Shortcuts:");
-    println!("  Arrows Left/Right   - Move cursor by character");
-    println!("  Alt+b / Alt+f       - Move cursor back/forward by token");
-    println!("  Alt+d               - Delete next token");
-    println!("  Ctrl+a / Ctrl+e     - Move cursor to start/end of line");
-    println!("  Ctrl+k / Ctrl+u     - Delete to end/start of line");
-    println!("  Ctrl+w              - Delete previous token");
-    println!("  Ctrl+l              - Clear screen");
-    println!("  Arrows Up/Down      - Navigate history (loops)");
-    println!("  Ctrl+c / Ctrl+d     - Exit");
+fn print_repl_help(stdout: &mut io::Stdout) -> io::Result<()> {
+    execute!(
+        stdout,
+        Print("Interactive Mode Shortcuts:\r\n"),
+        Print("  Arrows Left/Right   - Move cursor by character\r\n"),
+        Print("  Alt+b / Alt+f       - Move cursor back/forward by token\r\n"),
+        Print("  Alt+d               - Delete next token\r\n"),
+        Print("  Ctrl+a / Ctrl+e     - Move cursor to start/end of line\r\n"),
+        Print("  Ctrl+k / Ctrl+u     - Delete to end/start of line\r\n"),
+        Print("  Ctrl+w              - Delete previous token\r\n"),
+        Print("  Ctrl+l              - Clear screen\r\n"),
+        Print("  Arrows Up/Down      - Navigate history (loops)\r\n"),
+        Print("  Ctrl+c / Ctrl+d     - Exit\r\n")
+    )
 }
 
 struct ReplState {
@@ -185,7 +188,7 @@ fn run_repl() -> io::Result<()> {
                     }
                     
                     if input == "/help" {
-                        print_repl_help();
+                        print_repl_help(&mut stdout)?;
                         state.reset_input();
                         continue;
                     }
