@@ -1,4 +1,3 @@
-use std::env;
 use std::io::{self, Write};
 use crossterm::{
     event::{self, Event, KeyCode, KeyEventKind, KeyModifiers},
@@ -7,20 +6,28 @@ use crossterm::{
     cursor::{self, MoveToColumn},
     style::Print,
 };
+use clap::Parser;
 
 use dbc::evaluate;
 
-fn main() -> io::Result<()> {
-    let args: Vec<String> = env::args().collect();
-    
-    // Handle version flag
-    if args.len() > 1 && (args[1] == "--version" || args[1] == "-v") {
-        println!("dbc v0.1.2");
-        return Ok(());
-    }
+#[derive(Parser)]
+#[command(name = "dbc")]
+#[command(version = "0.1.3")]
+#[command(about = "Dollar Calculator CLI Tool", long_about = None)]
+struct Cli {
+    /// The expression to evaluate (e.g., "$100 + $50")
+    #[arg(value_name = "EXPRESSION")]
+    expression: Vec<String>,
 
-    // Handle update flag
-    if args.len() > 1 && args[1] == "--update" {
+    /// Update dbc via homebrew
+    #[arg(long)]
+    update: bool,
+}
+
+fn main() -> io::Result<()> {
+    let cli = Cli::parse();
+
+    if cli.update {
         println!("Updating dbc via homebrew...");
         let status = std::process::Command::new("sh")
             .arg("-c")
@@ -35,15 +42,9 @@ fn main() -> io::Result<()> {
         return Ok(());
     }
 
-    // Handle help flags
-    if args.len() > 1 && (args[1] == "--help" || args[1] == "-h") {
-        print_help();
-        return Ok(());
-    }
-
-    // One-shot mode
-    if args.len() > 1 {
-        let expr = args[1..].join(" ");
+    if !cli.expression.is_empty() {
+        // One-shot mode
+        let expr = cli.expression.join(" ");
         match evaluate(&expr) {
             Ok(result) => {
                 println!("{}", result);
@@ -60,16 +61,7 @@ fn main() -> io::Result<()> {
     run_repl()
 }
 
-fn print_help() {
-    println!("dbc - Dollar Calculator");
-    println!();
-    println!("Usage:");
-    println!("  dbc [expression]    Evaluate the expression and exit");
-    println!("  dbc                 Enter interactive mode");
-    println!("  dbc --help, -h      Show this help message");
-    println!("  dbc --version, -v   Show version information");
-    println!("  dbc --update        Update dbc via homebrew");
-    println!();
+fn print_repl_help() {
     println!("Interactive Mode Shortcuts:");
     println!("  Arrows Left/Right   - Move cursor by character");
     println!("  Alt+b / Alt+f       - Move cursor back/forward by token");
@@ -193,7 +185,7 @@ fn run_repl() -> io::Result<()> {
                     }
                     
                     if input == "/help" {
-                        print_help();
+                        print_repl_help();
                         state.reset_input();
                         continue;
                     }
