@@ -65,15 +65,19 @@ fn print_repl_help(stdout: &mut io::Stdout) -> io::Result<()> {
     execute!(
         stdout,
         Print("Interactive Mode Shortcuts:\r\n"),
-        Print("  Arrows Left/Right   - Move cursor by character\r\n"),
-        Print("  Alt+b / Alt+f       - Move cursor back/forward by token\r\n"),
-        Print("  Alt+d               - Delete next token\r\n"),
-        Print("  Ctrl+a / Ctrl+e     - Move cursor to start/end of line\r\n"),
-        Print("  Ctrl+k / Ctrl+u     - Delete to end/start of line\r\n"),
-        Print("  Ctrl+w              - Delete previous token\r\n"),
-        Print("  Ctrl+l              - Clear screen\r\n"),
-        Print("  Arrows Up/Down      - Navigate history (loops)\r\n"),
-        Print("  Ctrl+c / Ctrl+d     - Exit\r\n")
+        Print("\r\n  [Cursor Movement]\r\n"),
+        Print("    Arrows Left/Right - Move by character\r\n"),
+        Print("    Alt+b / Alt+f     - Move back/forward by token\r\n"),
+        Print("    Ctrl+a / Ctrl+e   - Move to start/end of line\r\n"),
+        Print("\r\n  [Editing]\r\n"),
+        Print("    Backspace / Del   - Delete character\r\n"),
+        Print("    Alt+d             - Delete next token\r\n"),
+        Print("    Ctrl+w            - Delete previous token\r\n"),
+        Print("    Ctrl+k / Ctrl+u   - Delete to end/start of line\r\n"),
+        Print("\r\n  [History & System]\r\n"),
+        Print("    Arrows Up/Down    - Navigate history (loops)\r\n"),
+        Print("    Ctrl+l            - Clear screen\r\n"),
+        Print("    Ctrl+c / Ctrl+d   - Exit\r\n")
     )
 }
 
