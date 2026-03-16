@@ -43,13 +43,9 @@ fn format_number(value: f64, format: &NumberFormat) -> String {
     let sign = if value < 0.0 { "-" } else { "" };
 
     // Round to appropriate decimal places first
-    let d = if format.decimal_places > 2 { 2 } else { format.decimal_places };
-    let rounded = if d > 0 {
-        let multiplier = 10_f64.powi(d as i32);
-        (abs_value * multiplier).round() / multiplier
-    } else {
-        abs_value.round()
-    };
+    let d = format.decimal_places;
+    let multiplier = 10_f64.powi(d as i32);
+    let rounded = (abs_value * multiplier).round() / multiplier;
 
     // Split into integer and decimal parts after rounding
     let int_part = rounded.trunc() as u64;
@@ -456,6 +452,11 @@ mod tests {
         assert!(fmt.has_dollar);
         assert!(fmt.has_commas);
         assert_eq!(fmt.decimal_places, 2);
+    }
+
+    #[test]
+    fn test_precision_preservation() {
+        assert_eq!(evaluate("700.00000 / 6700.000").unwrap(), "0.10448");
     }
 
     #[test]
