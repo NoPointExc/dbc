@@ -6,6 +6,8 @@ A command-line calculator for dollar number calculations with flexible number fo
 
 - **Basic Math Operations**: +, -, *, /, %
 - **Mathematical Functions**: `sqrt(x)`, `pow(base, exp)`, `abs(x)`, `max(a, b)`, `min(a, b)`
+- **Real-Time Stock Prices**: Use `$SYMBOL` as a variable to fetch the current market price
+  - `$AAPL`, `$TSLA`, `$BTC-USD`
 - **Flexible Number Formats**: Supports $ prefix and comma separators
   - `$1,420,368.94`
   - `1,420,368.94`

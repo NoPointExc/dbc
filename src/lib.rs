@@ -1,3 +1,5 @@
+mod finance;
+
 #[derive(Debug, Clone)]
 struct NumberFormat {
     has_dollar: bool,
@@ -93,6 +95,7 @@ enum Token {
     Number(f64),
     Operator(char),
     Function(String),
+    StockSymbol(String),
     LeftParen,
     RightParen,
     Comma,
@@ -113,7 +116,19 @@ fn tokenize(input: &str) -> Result<Vec<Token>, String> {
             continue;
         }
 
-        // Handle numbers (including dollar sign and commas)
+        // Handle stock symbols ($AAPL)
+        if c == '$' && i + 1 < chars.len() && chars[i + 1].is_alphabetic() {
+            i += 1; // skip '$'
+            let mut symbol = String::new();
+            while i < chars.len() && (chars[i].is_alphanumeric() || chars[i] == '-' || chars[i] == '=') {
+                symbol.push(chars[i]);
+                i += 1;
+            }
+            tokens.push(Token::StockSymbol(symbol.to_uppercase()));
+            continue;
+        }
+
+        // Handle numbers (including dollar sign prefix and commas)
         if c.is_ascii_digit() || c == '$' || (c == '.' && i + 1 < chars.len() && chars[i + 1].is_ascii_digit()) {
             // Collect the number string
             let mut num_str = String::new();
@@ -211,6 +226,10 @@ fn tokenize(input: &str) -> Result<Vec<Token>, String> {
         }
 
         // Handle comma (as argument separator)
+        if c == ' ' {
+             i += 1;
+             continue;
+        }
         if c == ',' {
             tokens.push(Token::Comma);
             i += 1;
@@ -239,7 +258,7 @@ fn to_rpn(tokens: Vec<Token>) -> Result<Vec<Token>, String> {
 
     for token in tokens {
         match token {
-            Token::Number(_) => {
+            Token::Number(_) | Token::StockSymbol(_) => {
                 output.push(token);
             }
             Token::Function(_) => {
@@ -316,6 +335,10 @@ fn evaluate_rpn(tokens: Vec<Token>) -> Result<f64, String> {
         match token {
             Token::Number(val) => {
                 stack.push(val);
+            }
+            Token::StockSymbol(symbol) => {
+                let price = finance::fetch_stock_price(&symbol)?;
+                stack.push(price);
             }
             Token::Operator(op) => {
                 if stack.len() < 2 {
@@ -395,21 +418,25 @@ pub fn evaluate(input: &str) -> Result<String, String> {
         return Err("Empty expression".to_string());
     }
 
+    // Find first number or stock symbol in original expression to get format
+    let format = if let Some(Token::StockSymbol(_)) = tokens.first() {
+        NumberFormat { has_dollar: true, has_commas: true, decimal_places: 2 }
+    } else {
+        let trimmed_for_format = input.trim_start_matches(|c: char| !c.is_ascii_digit() && c != '$' && c != '.');
+        let first_num_str: String = trimmed_for_format
+            .chars()
+            .take_while(|&c| c.is_ascii_digit() || c == '$' || c == ',' || c == '.')
+            .collect();
+        
+        if let Some((_, fmt)) = parse_number(&first_num_str) {
+            fmt
+        } else {
+            NumberFormat { has_dollar: false, has_commas: false, decimal_places: 0 }
+        }
+    };
+
     // Convert to RPN
     let rpn = to_rpn(tokens)?;
-
-    // Find first number in original expression to get format
-    let trimmed_for_format = input.trim_start_matches(|c: char| !c.is_ascii_digit() && c != '$' && c != '.');
-    let first_num_str: String = trimmed_for_format
-        .chars()
-        .take_while(|&c| c.is_ascii_digit() || c == '$' || c == ',' || c == '.')
-        .collect();
-    
-    let format = if let Some((_, fmt)) = parse_number(&first_num_str) {
-        fmt
-    } else {
-        NumberFormat { has_dollar: false, has_commas: false, decimal_places: 0 }
-    };
 
     // Evaluate RPN
     let result = evaluate_rpn(rpn)?;
@@ -469,5 +496,12 @@ mod tests {
     fn test_simple_parentheses() {
         let result = evaluate("(1 + 2) * 3").unwrap();
         assert_eq!(result, "9");
+    }
+
+    #[test]
+    fn test_stock_tokenization() {
+        let tokens = tokenize("$AAPL + $TSLA").unwrap();
+        assert_eq!(tokens[0], Token::StockSymbol("AAPL".to_string()));
+        assert_eq!(tokens[2], Token::StockSymbol("TSLA".to_string()));
     }
 }

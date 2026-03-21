@@ -67,6 +67,7 @@ fn print_repl_help(stdout: &mut io::Stdout) -> io::Result<()> {
         Print("Interactive Mode Shortcuts:\r\n"),
         Print("\r\n  [Functions]\r\n"),
         Print("    sqrt(x), pow(base, exp), abs(x), max(a, b), min(a, b)\r\n"),
+        Print("    Stock Symbols: $AAPL, $TSLA, $BTC-USD, etc.\r\n"),
         Print("\r\n  [Cursor Movement]\r\n"),
         Print("    Arrows Left/Right - Move by character\r\n"),
         Print("    Alt+b / Alt+f     - Move back/forward by token\r\n"),
