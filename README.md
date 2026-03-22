@@ -40,14 +40,14 @@ cargo install --path .
 Pass an expression as arguments to evaluate it and exit:
 
 ```bash
-dbc "$1,420,368.94 + $1"
-# Output: $1,420,369.94
+dbc '$AAPL'
+# Output: $247.99
+
+dbc '$1,000 + $AAPL'
+# Output: $1,247.99
 
 dbc "400 * 5%"
 # Output: 20
-
-dbc "sqrt(9)"
-# Output: 3
 ```
 
 *Tip: Always use single quotes ('...') or double quotes ("...") around expressions in your shell to avoid interpretation of characters like `$` or `*`.*
@@ -72,17 +72,14 @@ dbc
 ### Examples
 
 ```
-> $1,420,368.94 + $1
-$1,420,369.94
+> $AAPL
+$247.99
+
+> $1,000 + $AAPL
+$1,247.99
 
 > 400 * 4%
 16
-
-> max($100, $50)
-$100
-
-> sqrt(pow(3, 2) + pow(4, 2))
-5
 ```
 
 ## Number Format Handling

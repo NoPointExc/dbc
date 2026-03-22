@@ -13,9 +13,9 @@ use dbc::evaluate;
 #[derive(Parser)]
 #[command(name = "dbc")]
 #[command(version)]
-#[command(about = "Dollar Calculator CLI Tool", long_about = None)]
+#[command(about = "Dollar Calculator with Real-Time Stock Prices", long_about = "A CLI tool to evaluate mathematical expressions with dollar formatting and real-time stock prices (e.g., '$100 + $AAPL').")]
 struct Cli {
-    /// The expression to evaluate (e.g., "$100 + $50")
+    /// The expression to evaluate (e.g., "$100 + $AAPL")
     #[arg(value_name = "EXPRESSION")]
     expression: Vec<String>,
 
